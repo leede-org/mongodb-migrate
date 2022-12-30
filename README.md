@@ -1,16 +1,15 @@
 # mongodb-migrate
 
 `mongodb-migrate` is a tool to migrate a MongoDB database from one server to another without downtime using change streams. It works by executing
-a `mongodump` on the source database followed by a `mongorestore` on the destination database. Before starting the dump, the source database
-is watched for changes to documents using change streams which are applied after the initial restore. Afterwards, the tool keeps synchronizing
-document insertions, updates, replacements and deletions.
+a `mongodump` on the source database followed by a `mongorestore` on the destination database and then synchronizing further document insertions, updates,
+replacements and deletions. The watcher is set up before the initial execution `mongodump` so no changes will go missing.
 
 Caveats:
 
 - change streams are only available for replica sets and sharded clusters (note that a standalone `mongod` instance can be converted to a replica set)
 - the tool uses `mongodump` and `mongorestore` executables which must be available in the system path
 - the tool only synchronizes one database, if you want to migrate multiple databases then run the tool multiple times in parallel or sequentially
-- collection indexes are synchronized after the intial `mongodump` and `mongorestore`
+- collection indexes are synchronized after the intial `mongorestore` but indexes created in the source database afterwards are not synchronized
 
 ## Usage
 
@@ -49,4 +48,5 @@ Migration steps:
 1. Run `mongodb-migrate`
 2. Wait until the intial `mongorestore` is completed
 3. Change MongoDB connection uri in all your applications
-4. Use Ctrl+C to stop `mongodb-migrate` when no more changes are anticipated in the source database
+4. Watch the output of the tool until it reports that no more changes are being made in the source database
+5. Use Ctrl+C to stop `mongodb-migrate` when no more changes are anticipated in the source database

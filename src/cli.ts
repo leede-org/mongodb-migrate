@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { spawnSync } from "child_process";
 import { ArgumentParser } from "argparse";
 import { migrate } from "./migrate";
 
@@ -27,9 +28,27 @@ parser.add_argument("-w", "--excludeWatch", {
   help: "Exclude collections from being watched for changes - only a snapshot for these will be copied and further changes will not be synchronized, separate collection names with comma to exclude multiple collections",
 });
 
-// Run
 const args = parser.parse_args();
 
+// Check environment
+const mongodumpVersion = spawnSync("mongodump", ["--version"]);
+const mongorestoreVersion = spawnSync("mongorestore", ["--version"]);
+
+if (mongodumpVersion.error) {
+  console.error(
+    "mongodump is not on system path, install MongoDB Database Tools and try again"
+  );
+  process.exit(1);
+}
+
+if (mongorestoreVersion.error) {
+  console.error(
+    "mongorestore is not on system path, install MongoDB Database Tools and try again"
+  );
+  process.exit(1);
+}
+
+// Run
 migrate(
   args.src,
   args.dst,
