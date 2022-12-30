@@ -1,7 +1,7 @@
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from "child_process";
+import { spawn } from "child_process";
 import { setTimeout } from "timers/promises";
 import {
   MongoClient,
@@ -70,6 +70,20 @@ async function processChanges(dstDb: Db, changes: Change[]) {
   }
 }
 
+async function spawnAsync(command: string, args: readonly string[]) {
+  return new Promise<void>((resolve, reject) => {
+    const process = spawn(command, args, { stdio: "inherit" });
+
+    process.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
+  });
+}
+
 export async function migrate(
   srcUri: string,
   dstUri: string,
@@ -113,39 +127,27 @@ export async function migrate(
   });
 
   // Create temporary directory for dump
-  const dumpDir = fs.mkdtempSync(path.join(os.tmpdir(), "dump-"));
+  const dumpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "dump-"));
 
   // Run mongodump
-  spawnSync(
-    "mongodump",
-    [
-      `--uri="${srcUri}"`,
-      `--out="${dumpDir}"`,
-      ...excludeCollections.map(
-        (collection) => `--excludeCollection="${collection}"`
-      ),
-    ],
-    {
-      stdio: "inherit",
-    }
-  );
+  await spawnAsync("mongodump", [
+    `--uri="${srcUri}"`,
+    `--out="${dumpDir}"`,
+    ...excludeCollections.map(
+      (collection) => `--excludeCollection="${collection}"`
+    ),
+  ]);
 
   // Run mongorestore
-  spawnSync(
-    "mongorestore",
-    [
-      `--uri="${dstUri}"`,
-      `--nsFrom="${srcDb.databaseName}.*"`,
-      `--nsTo="${dstDb.databaseName}.*"`,
-      `${dumpDir}/${srcDb.databaseName}`,
-    ],
-    {
-      stdio: "inherit",
-    }
-  );
+  await spawnAsync("mongorestore", [
+    `--uri="${dstUri}"`,
+    `--nsFrom="${srcDb.databaseName}.*"`,
+    `--nsTo="${dstDb.databaseName}.*"`,
+    `${dumpDir}/${srcDb.databaseName}`,
+  ]);
 
   // Remove temporary directory
-  fs.rmSync(dumpDir, { recursive: true });
+  await fs.promises.rm(dumpDir, { recursive: true });
 
   // Start writing changes to destination database after intial dump and restore
   console.log(`${changes.length} changes occured during dump and restore`);
