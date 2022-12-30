@@ -1,6 +1,6 @@
 # mongodb-migrate
 
-`mongodb-migrate` is a tool to migrate a MongoDB database from one server to another without downtime using change streams. It works by executing
+`mongodb-migrate` is a tool to migrate MongoDB data from one server to another without downtime using change streams. It works by executing
 a `mongodump` on the source database followed by a `mongorestore` on the destination database and then synchronizing further document insertions, updates,
 replacements and deletions. The watcher is set up before the initial execution `mongodump` so no changes will go missing.
 

@@ -1,8 +1,20 @@
 {
   "name": "@leede/mongodb-migrate",
   "version": "0.0.1",
+  "description": "Tool to migrate MongoDB data from one server to another without downtime",
+  "author": "Leede <info@leede.ee> (https://leede.ee)",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leede-org/mongodb-migrate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/leede-org/mongodb-migrate/issues"
+  },
+  "homepage": "https://github.com/leede-org/mongodb-migrate#readme",
   "scripts": {
-    "start": "ts-node src/index.ts",
     "build": "tsc"
   },
   "devDependencies": {

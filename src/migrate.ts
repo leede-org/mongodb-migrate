@@ -13,7 +13,7 @@ import {
   ChangeStreamDeleteDocument,
 } from "mongodb";
 
-interface Change<TSchema extends Document = Document> {
+export interface Change<TSchema extends Document = Document> {
   time: Date;
   event:
     | ChangeStreamInsertDocument<TSchema>
