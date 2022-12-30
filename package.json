@@ -1,6 +1,6 @@
 {
   "name": "@leede/mongodb-migrate",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Tool to migrate MongoDB data from one server to another without downtime",
   "author": "Leede <info@leede.ee> (https://leede.ee)",
   "license": "MIT",
